@@ -13,8 +13,73 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Stage {
+  Created
+  RegisterCandidates
+  RegisterVoters
+  Voting
+  Finalized
+}
+
 model User {
-  id      String @id @default(cuid())
-  address String @unique
-  noance  String
+  id         String    @id @default(cuid())
+  address    String    @unique
+  nonce      String
+  created_at DateTime  @default(now())
+  last_login DateTime?
+
+  elections Election[]  @relation("HostElections")
+  candidate Candidate[] @relation("CandidateUser")
+  voter     Voter[]     @relation("VoterUser")
+
+  @@index([address])
+}
+
+model Election {
+  id              BigInt   @id
+  title           String
+  host_address    String
+  stage           Stage    @default(Created)
+  deadline        BigInt?
+  created_at      BigInt
+  deposit         BigInt
+  finalize_payout BigInt?
+  updated_at      DateTime @default(now())
+
+  host       User        @relation("HostElections", fields: [host_address], references: [address])
+  candidates Candidate[] @relation("CandidateElections")
+  voters     Voter[]     @relation("VoterElections")
+
+  @@index([host_address])
+  @@index([stage])
+}
+
+model Candidate {
+  id           Int      @id @default(autoincrement())
+  name         String
+  user_address String
+  election_id  BigInt
+  votes        BigInt   @default(0)
+  created_at   DateTime @default(now())
+
+  user     User     @relation("CandidateUser", fields: [user_address], references: [address])
+  election Election @relation("CandidateElections", fields: [election_id], references: [id])
+
+  @@unique([user_address, election_id])
+  @@index([user_address, election_id])
+  @@index([election_id])
+}
+
+model Voter {
+  id           Int     @id @default(autoincrement())
+  user_address String
+  election_id  BigInt
+  has_voted    Boolean @default(false)
+
+  user     User     @relation("VoterUser", fields: [user_address], references: [address])
+  election Election @relation("VoterElections", fields: [election_id], references: [id])
+
+  @@unique([user_address, election_id])
+  @@index([user_address, election_id])
+  @@index([election_id])
 }
