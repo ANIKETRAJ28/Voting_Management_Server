@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
 
+echo "🔍 Running prisma format..."
+npx prisma format
 echo "🔍 Running lint-staged..."
 npx lint-staged
