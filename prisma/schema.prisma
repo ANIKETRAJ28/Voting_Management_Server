@@ -49,6 +49,7 @@ model Election {
   host       User        @relation("HostElections", fields: [host_address], references: [address])
   candidates Candidate[] @relation("CandidateElections")
   voters     Voter[]     @relation("VoterElections")
+  votes      Vote[]      @relation("ElectionVote")
 
   @@index([host_address])
   @@index([stage])
@@ -62,8 +63,9 @@ model Candidate {
   votes        BigInt   @default(0)
   created_at   DateTime @default(now())
 
-  user     User     @relation("CandidateUser", fields: [user_address], references: [address])
-  election Election @relation("CandidateElections", fields: [election_id], references: [id])
+  user      User     @relation("CandidateUser", fields: [user_address], references: [address])
+  election  Election @relation("CandidateElections", fields: [election_id], references: [id])
+  votesList Vote[]   @relation("VoteCandidate")
 
   @@unique([user_address, election_id])
   @@index([user_address, election_id])
@@ -78,8 +80,26 @@ model Voter {
 
   user     User     @relation("VoterUser", fields: [user_address], references: [address])
   election Election @relation("VoterElections", fields: [election_id], references: [id])
+  votes    Vote[]   @relation("VoteVoter")
 
   @@unique([user_address, election_id])
   @@index([user_address, election_id])
   @@index([election_id])
+}
+
+model Vote {
+  id           Int      @id @default(autoincrement())
+  election_id  BigInt
+  voter_id     Int
+  candidate_id Int
+  timestamp    DateTime @default(now())
+
+  election  Election  @relation("ElectionVote", fields: [election_id], references: [id])
+  voter     Voter     @relation("VoteVoter", fields: [voter_id], references: [id])
+  candidate Candidate @relation("VoteCandidate", fields: [candidate_id], references: [id])
+
+  @@unique([voter_id, election_id])
+  @@index([election_id])
+  @@index([voter_id])
+  @@index([candidate_id])
 }
