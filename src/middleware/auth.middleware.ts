@@ -22,7 +22,7 @@ export class AuthMiddleware {
       }
       const tokenData = decodedToken as IUserResponse;
       req.user_id = tokenData.id;
-      req.user_address = tokenData.address;
+      req.user_address = tokenData.address.toLowerCase();
       next();
     } catch (error) {
       errorHandler(error, res);
