@@ -35,4 +35,9 @@ export class AuthController {
       errorHandler(error, res);
     }
   }
+
+  async logout(_req: Request, res: Response): Promise<void> {
+    res.clearCookie('refresh_token', refreshCookieOption);
+    apiHandler(res, 201, 'Loged out successfully');
+  }
 }
