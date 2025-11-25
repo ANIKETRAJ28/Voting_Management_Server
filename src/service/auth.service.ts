@@ -21,4 +21,8 @@ export class AuthService {
     const userData: IUserResponse = await this.authRepository.verify(address, nonce);
     return userData;
   }
+
+  async verifyUserByAddress(address: string): Promise<boolean> {
+    return this.authRepository.verifyUserByAddress(address);
+  }
 }

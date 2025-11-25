@@ -7,6 +7,12 @@ export interface IElectionRequest {
   host_address: string;
 }
 
+export interface IElectionChainResponse extends IElectionRequest {
+  id: bigint;
+  deposit: bigint;
+  created_at: bigint;
+}
+
 export interface IElectionResponse extends IElectionRequest {
   id: bigint;
   stage: IStage;

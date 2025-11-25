@@ -4,17 +4,18 @@ import { prisma } from '@/config/db.config';
 import { ICandidateResponse } from '@/interface/candidate.interface';
 import {
   IElection,
+  IElectionChainResponse,
   IElectionNotFound,
   IElectionResponse,
   IElectionResponseWithCandidate,
   IElectionResponseWithCandidateForHost,
+  IStage,
 } from '@/interface/election.interface';
 import { IUser } from '@/interface/user.interface';
 import { IVoter } from '@/interface/voter.interface';
+import { CandidateRepository } from '@/repository/candidate.repository';
+import { VoterRepository } from '@/repository/voter.repository';
 import { ApiError } from '@/util/api.util';
-
-import { CandidateRepository } from './candidate.repository';
-import { VoterRepository } from './voter.repository';
 
 export class ElectionRepository {
   private client: PrismaClient;
@@ -140,6 +141,50 @@ export class ElectionRepository {
       deadline: election.deadline,
       created_at: election.created_at,
       candidates: election.candidates,
+    };
+  }
+
+  async createElection(data: IElectionChainResponse): Promise<IElectionResponse> {
+    const election: IElection = await this.client.election.create({ data: data });
+    return election;
+  }
+
+  async updateElectionStage(election_id: bigint, user_address: string, stage: IStage): Promise<IElectionResponse> {
+    let election: IElection | null = await this.client.election.findUnique({ where: { id: election_id } });
+    if (election === null) throw new ApiError(404, 'Election not found');
+    if (election.host_address.toLowerCase() !== user_address) throw new ApiError(401, 'Unauthorized for this action');
+    switch (stage) {
+      case 'Created': {
+        throw new ApiError(400, 'Cannot perform this action');
+      }
+      case 'RegisterCandidates': {
+        if (election.stage !== 'Created') throw new ApiError(400, 'Cannot perform this action');
+        break;
+      }
+      case 'RegisterVoters': {
+        if (election.stage !== 'RegisterCandidates') throw new ApiError(400, 'Cannot perform this action');
+        break;
+      }
+      case 'Voting': {
+        if (election.stage !== 'RegisterVoters') throw new ApiError(400, 'Cannot perform this action');
+        break;
+      }
+      case 'Finalized': {
+        if (election.stage !== 'Voting') throw new ApiError(400, 'Cannot perform this action');
+        break;
+      }
+      default: {
+        throw new ApiError(400, 'Cannot perform this action');
+      }
+    }
+    election = await this.client.election.update({ where: { id: election.id }, data: { stage: stage } });
+    return {
+      id: election.id,
+      title: election.title,
+      host_address: election.host_address,
+      stage: election.stage,
+      deadline: election.deadline,
+      created_at: election.created_at,
     };
   }
 }

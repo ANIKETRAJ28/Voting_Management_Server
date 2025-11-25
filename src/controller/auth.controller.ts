@@ -36,6 +36,17 @@ export class AuthController {
     }
   }
 
+  async verifyUserByAddress(req: Request, res: Response): Promise<void> {
+    try {
+      const { address } = req.params;
+      const response = await this.authService.verifyUserByAddress(address);
+      if (response) apiHandler(res, 200, 'User exist', response);
+      else apiHandler(res, 200, 'User does not exist', response);
+    } catch (error) {
+      errorHandler(error, res);
+    }
+  }
+
   async logout(_req: Request, res: Response): Promise<void> {
     res.clearCookie('refresh_token', refreshCookieOption);
     apiHandler(res, 201, 'Loged out successfully');

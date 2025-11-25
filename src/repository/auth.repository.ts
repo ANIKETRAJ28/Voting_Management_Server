@@ -29,4 +29,8 @@ export class AuthRepository {
     await this.client.user.update({ where: { id: user.id }, data: { nonce: randomNonce, last_login: new Date() } });
     return { id: user.id, address: user.address };
   }
+
+  async verifyUserByAddress(address: string): Promise<boolean> {
+    return (await this.client.user.findUnique({ where: { address: address } })) !== null;
+  }
 }

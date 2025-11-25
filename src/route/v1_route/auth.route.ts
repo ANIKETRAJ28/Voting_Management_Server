@@ -7,6 +7,11 @@ export const authRoute = Router();
 const authController = new AuthController();
 const authMiddleware = new AuthMiddleware();
 
+authRoute.get(
+  '/authenticate/:address',
+  authMiddleware.verifyAccessToken.bind(authMiddleware),
+  authController.verifyUserByAddress.bind(authController),
+);
 authRoute.post('/authenticate', authController.authenticate.bind(authController));
 authRoute.post('/verify', authController.verify.bind(authController));
 authRoute.post('/refresh', authMiddleware.refreshAccessToken.bind(authMiddleware));
