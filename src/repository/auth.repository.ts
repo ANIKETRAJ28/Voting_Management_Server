@@ -12,6 +12,12 @@ export class AuthRepository {
     this.client = prisma;
   }
 
+  async getUserByAddress(address: string): Promise<IUserResponse> {
+    const user: IUser | null = await this.client.user.findUnique({ where: { address: address } });
+    if (user === null) throw new ApiError(400, 'User not found with given address');
+    return user;
+  }
+
   async authenticate(address: string): Promise<string> {
     const nonce = `Login request: ${randomNonce}`;
     await this.client.user.upsert({

@@ -4,8 +4,8 @@ import { prisma } from '@/config/db.config';
 import { ICandidateResponse } from '@/interface/candidate.interface';
 import {
   IElection,
-  IElectionChainResponse,
   IElectionNotFound,
+  IElectionRequest,
   IElectionResponse,
   IElectionResponseWithCandidate,
   IElectionResponseWithCandidateForHost,
@@ -26,6 +26,19 @@ export class ElectionRepository {
     this.client = prisma;
     this.candidateRepository = new CandidateRepository();
     this.voterRepository = new VoterRepository();
+  }
+
+  async getElectionById(id: bigint): Promise<IElectionResponse> {
+    const election: IElection | null = await this.client.election.findUnique({ where: { id: id } });
+    if (election === null) throw new ApiError(400, 'Election not found');
+    return {
+      id: election.id,
+      title: election.title,
+      host_address: election.host_address,
+      stage: election.stage,
+      deadline: election.deadline,
+      created_at: election.created_at,
+    };
   }
 
   async getElectionsAsCandidature(id: string): Promise<(IElectionResponse | IElectionNotFound)[]> {
@@ -144,7 +157,7 @@ export class ElectionRepository {
     };
   }
 
-  async createElection(data: IElectionChainResponse): Promise<IElectionResponse> {
+  async createElection(data: IElectionRequest): Promise<IElectionResponse> {
     const election: IElection = await this.client.election.create({ data: data });
     return election;
   }
@@ -186,5 +199,24 @@ export class ElectionRepository {
       deadline: election.deadline,
       created_at: election.created_at,
     };
+  }
+
+  async updateElectionDeadline(
+    election_id: bigint,
+    user_address: string,
+    deadline: bigint,
+  ): Promise<IElectionResponse> {
+    let election: IElection | null = await this.client.election.findUnique({ where: { id: election_id } });
+    if (election === null) throw new ApiError(404, 'Cannot find election');
+    if (election.host_address.toLowerCase() !== user_address) throw new ApiError(401, 'Unauthorized for this action');
+    election = await this.client.election.update({ where: { id: election_id }, data: { deadline: deadline } });
+    return election;
+  }
+
+  async updateElectionPayout(election_id: bigint, payout: bigint): Promise<IElectionResponse> {
+    let election: IElection | null = await this.client.election.findUnique({ where: { id: election_id } });
+    if (election === null) throw new ApiError(404, 'Election not found');
+    election = await this.client.election.update({ where: { id: election_id }, data: { finalize_payout: payout } });
+    return election;
   }
 }

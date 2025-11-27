@@ -12,6 +12,12 @@ export class CandidateRepository {
     this.client = prisma;
   }
 
+  async getCandidateById(id: bigint): Promise<ICandidateResponse> {
+    const candidate: ICandidate | null = await this.client.candidate.findUnique({ where: { id: id } });
+    if (candidate === null) throw new ApiError(404, 'Candidate not found');
+    return candidate;
+  }
+
   async getCandidatureForUserId(id: string): Promise<ICandidateResponse[]> {
     const user: IUser | null = await this.client.user.findUnique({ where: { id: id } });
     if (user === null) throw new ApiError(401, 'User not found');
@@ -23,18 +29,20 @@ export class CandidateRepository {
       name: candidate.name,
       user_address: candidate.user_address,
       election_id: candidate.election_id,
+      votes: candidate.votes,
     }));
   }
 
   async createCandidate(data: ICandidateRequest): Promise<ICandidateResponse> {
     const candidate: ICandidate = await this.client.candidate.create({
-      data: { name: data.name, user_address: data.user_address, election_id: data.election_id },
+      data: { id: data.id, name: data.name, user_address: data.user_address, election_id: data.election_id },
     });
     return {
       id: candidate.id,
       name: candidate.name,
       user_address: candidate.user_address,
       election_id: candidate.election_id,
+      votes: candidate.votes,
     };
   }
 
@@ -45,6 +53,7 @@ export class CandidateRepository {
       name: candidate.name,
       user_address: candidate.user_address,
       election_id: candidate.election_id,
+      votes: candidate.votes,
     }));
   }
 }

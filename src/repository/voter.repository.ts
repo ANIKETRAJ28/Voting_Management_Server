@@ -12,6 +12,18 @@ export class VoterRepository {
     this.client = prisma;
   }
 
+  async getVoterById(id: number): Promise<IVoter> {
+    const voter: IVoter | null = await this.client.voter.findUnique({ where: { id: id } });
+    if (voter === null) throw new ApiError(400, 'Voter not found');
+    return voter;
+  }
+
+  async getVoterByAddress(address: string): Promise<IVoter> {
+    const voter: IVoter | null = await this.client.voter.findFirst({ where: { user_address: address } });
+    if (voter === null) throw new ApiError(400, 'Voter not found');
+    return voter;
+  }
+
   async getVoterForUserId(id: string): Promise<IVoter[]> {
     const user: IUser | null = await this.client.user.findUnique({ where: { id: id } });
     if (user === null) throw new ApiError(401, 'User not found');
