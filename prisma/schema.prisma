@@ -55,7 +55,7 @@ model Election {
 }
 
 model Candidate {
-  id           Int      @id @default(autoincrement())
+  id           BigInt      @id
   name         String
   user_address String
   election_id  BigInt
@@ -90,7 +90,7 @@ model Vote {
   id           Int      @id @default(autoincrement())
   election_id  BigInt
   voter_id     Int
-  candidate_id Int
+  candidate_id BigInt
   timestamp    DateTime @default(now())
 
   election  Election  @relation("ElectionVote", fields: [election_id], references: [id])
