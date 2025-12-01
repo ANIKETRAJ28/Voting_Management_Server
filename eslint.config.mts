@@ -23,7 +23,7 @@ export default [
 
     settings: {
       'import/resolver': {
-        typescript: {},
+        // REMOVED: typescript resolver is no longer needed without aliasing
         node: {
           extensions: ['.js', '.ts'],
         },
@@ -35,10 +35,14 @@ export default [
         'error',
         {
           groups: [
-            ['^\\w', '^@?\\w'], // external first
-            ['^@/'], // alias second
-            ['^\\.'], // relative third
-            ['^\\u0000'], // side effects last
+            // 1. External packages (e.g., 'express', '@prisma/client')
+            ['^\\w', '^@?\\w'],
+
+            // 2. Own relative imports (e.g., './config', '../app')
+            ['^\\.'],
+
+            // 3. Side effects (e.g., global polyfills) and JSON/special imports
+            ['^\\u0000', '\\.json$'],
           ],
         },
       ],

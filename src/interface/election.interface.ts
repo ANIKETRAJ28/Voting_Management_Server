@@ -1,4 +1,4 @@
-import { ICandidateResponse } from '@/interface/candidate.interface';
+import { ICandidateResponse } from './candidate.interface';
 
 export type IStage = 'Created' | 'RegisterCandidates' | 'RegisterVoters' | 'Voting' | 'Finalized';
 

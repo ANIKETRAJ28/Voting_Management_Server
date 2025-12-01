@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
-import { prisma } from '@/config/db.config';
-import { ICandidateResponse } from '@/interface/candidate.interface';
+import { prisma } from '../config/db.config';
+import { ICandidateResponse } from '../interface/candidate.interface';
 import {
   IElection,
   IElectionNotFound,
@@ -10,12 +10,12 @@ import {
   IElectionResponseWithCandidate,
   IElectionResponseWithCandidateForHost,
   IStage,
-} from '@/interface/election.interface';
-import { IUser } from '@/interface/user.interface';
-import { IVoter } from '@/interface/voter.interface';
-import { CandidateRepository } from '@/repository/candidate.repository';
-import { VoterRepository } from '@/repository/voter.repository';
-import { ApiError } from '@/util/api.util';
+} from '../interface/election.interface';
+import { IUser } from '../interface/user.interface';
+import { IVoter } from '../interface/voter.interface';
+import { CandidateRepository } from '../repository/candidate.repository';
+import { VoterRepository } from '../repository/voter.repository';
+import { ApiError } from '../util/api.util';
 
 export class ElectionRepository {
   private client: PrismaClient;

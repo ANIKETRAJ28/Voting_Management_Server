@@ -1,7 +1,9 @@
 import { ethers } from 'ethers';
+import fs from 'fs';
 
-import { CONTRACT_URL, PRIVATE_KEY, RPC_URL, WS_URL } from '@/config/dotenv.config';
-import abi from '@/config/votingManager_abi.config.json';
+import { CONTRACT_URL, PRIVATE_KEY, RPC_URL, WS_URL } from './dotenv.config';
+
+const abi = JSON.parse(fs.readFileSync('./votingManager_abi.config.json', 'utf-8'));
 
 class BlockchainClient {
   private provider: ethers.JsonRpcProvider;

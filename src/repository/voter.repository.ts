@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
-import { prisma } from '@/config/db.config';
-import { IUser } from '@/interface/user.interface';
-import { IVoter, IVoterRequest } from '@/interface/voter.interface';
-import { ApiError } from '@/util/api.util';
+import { prisma } from '../config/db.config';
+import { IUser } from '../interface/user.interface';
+import { IVoter, IVoterRequest } from '../interface/voter.interface';
+import { ApiError } from '../util/api.util';
 
 export class VoterRepository {
   private client: PrismaClient;

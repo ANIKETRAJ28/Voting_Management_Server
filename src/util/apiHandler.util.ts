@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Response } from 'express';
 
-import { ApiError, ApiResponse } from '@/util/api.util';
+import { ApiError, ApiResponse } from '../util/api.util';
 
 export function errorHandler(error: any, res: Response): void {
   if (error instanceof ApiError) {

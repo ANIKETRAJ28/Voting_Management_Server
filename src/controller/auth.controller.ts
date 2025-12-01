@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 
-import { IUserResponse } from '@/interface/user.interface';
-import { AuthService } from '@/service/auth.service';
-import { apiHandler, errorHandler } from '@/util/apiHandler.util';
-import { refreshCookieOption } from '@/util/cookie.util';
-import { generateAccessToken, generateRefreshToken } from '@/util/token.util';
+import { IUserResponse } from '../interface/user.interface';
+import { AuthService } from '../service/auth.service';
+import { apiHandler, errorHandler } from '../util/apiHandler.util';
+import { refreshCookieOption } from '../util/cookie.util';
+import { generateAccessToken, generateRefreshToken } from '../util/token.util';
 
 export class AuthController {
   private authService: AuthService;

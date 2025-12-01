@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
-import { IUserResponse } from '@/interface/user.interface';
-import { ApiError } from '@/util/api.util';
-import { apiHandler, errorHandler } from '@/util/apiHandler.util';
-import { refreshCookieOption } from '@/util/cookie.util';
-import { generateAccessToken } from '@/util/token.util';
+import { IUserResponse } from '../interface/user.interface';
+import { ApiError } from '../util/api.util';
+import { apiHandler, errorHandler } from '../util/apiHandler.util';
+import { refreshCookieOption } from '../util/cookie.util';
+import { generateAccessToken } from '../util/token.util';
 
 export class AuthMiddleware {
   verifyAccessToken(req: Request, res: Response, next: NextFunction): void {

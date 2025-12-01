@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
-import { prisma } from '@/config/db.config';
-import { ICandidate, ICandidateRequest, ICandidateResponse } from '@/interface/candidate.interface';
-import { IUser } from '@/interface/user.interface';
-import { ApiError } from '@/util/api.util';
+import { prisma } from '../config/db.config';
+import { ICandidate, ICandidateRequest, ICandidateResponse } from '../interface/candidate.interface';
+import { IUser } from '../interface/user.interface';
+import { ApiError } from '../util/api.util';
 
 export class CandidateRepository {
   private client: PrismaClient;

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 
-import { IElectionNotFound, IElectionResponse } from '@/interface/election.interface';
-import { ElectionService } from '@/service/election.service';
-import { ApiError } from '@/util/api.util';
-import { apiHandler, errorHandler } from '@/util/apiHandler.util';
+import { IElectionNotFound, IElectionResponse } from '../interface/election.interface';
+import { ElectionService } from '../service/election.service';
+import { ApiError } from '../util/api.util';
+import { apiHandler, errorHandler } from '../util/apiHandler.util';
 
 export class ElectionController {
   private electionService: ElectionService;

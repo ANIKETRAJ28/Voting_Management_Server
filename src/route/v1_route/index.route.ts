@@ -1,7 +1,7 @@
 import Router from 'express';
 
-import { authRoute } from '@/route/v1_route/auth.route';
-import { electionRouter } from '@/route/v1_route/election.route';
+import { authRoute } from '../../route/v1_route/auth.route';
+import { electionRouter } from '../../route/v1_route/election.route';
 
 export const v1_route = Router();
 

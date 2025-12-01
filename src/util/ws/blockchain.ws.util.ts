@@ -1,7 +1,7 @@
 import { ethers } from 'ethers';
 
-import { getInstance, IBlockchainClient } from '@/config/blockchain.config';
-import { IVotingManager } from '@/interface/blockchain.interface';
+import { getInstance, IBlockchainClient } from '../../config/blockchain.config';
+import { IVotingManager } from '../../interface/blockchain.interface';
 import {
   ICandidatesAddedEvent,
   IElectionCreatedEvent,
@@ -10,7 +10,7 @@ import {
   IVotedEvent,
   IVotersAddedEvent,
   IVotingStartedEvent,
-} from '@/interface/handler.interface';
+} from '../../interface/handler.interface';
 
 export function initVotingManagerWS(handlers: IVotingManager) {
   const instance: IBlockchainClient = getInstance();

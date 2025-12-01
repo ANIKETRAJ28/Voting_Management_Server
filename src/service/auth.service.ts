@@ -1,7 +1,7 @@
-import { IUserResponse } from '@/interface/user.interface';
-import { AuthRepository } from '@/repository/auth.repository';
-import { ApiError } from '@/util/api.util';
-import { verifySignature } from '@/util/etherValidation.util';
+import { IUserResponse } from '../interface/user.interface';
+import { AuthRepository } from '../repository/auth.repository';
+import { ApiError } from '../util/api.util';
+import { verifySignature } from '../util/etherValidation.util';
 
 export class AuthService {
   private authRepository: AuthRepository;

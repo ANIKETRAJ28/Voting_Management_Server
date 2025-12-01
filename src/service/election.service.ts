@@ -1,5 +1,5 @@
-import { IElectionNotFound, IElectionResponse } from '@/interface/election.interface';
-import { ElectionRepository } from '@/repository/election.repository';
+import { IElectionNotFound, IElectionResponse } from '../interface/election.interface';
+import { ElectionRepository } from '../repository/election.repository';
 
 export class ElectionService {
   private electionRepository: ElectionRepository;

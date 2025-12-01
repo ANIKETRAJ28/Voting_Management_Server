@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
-import { prisma } from '@/config/db.config';
-import { IUser, IUserResponse } from '@/interface/user.interface';
-import { ApiError } from '@/util/api.util';
-import { randomNonce } from '@/util/randomKeys.util';
+import { prisma } from '../config/db.config';
+import { IUser, IUserResponse } from '../interface/user.interface';
+import { ApiError } from '../util/api.util';
+import { randomNonce } from '../util/randomKeys.util';
 
 export class AuthRepository {
   private client: PrismaClient;

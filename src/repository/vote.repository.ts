@@ -1,8 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 
-import { prisma } from '@/config/db.config';
-import { IVote } from '@/interface/vote.interface';
-
+import { prisma } from '../config/db.config';
+import { IVote } from '../interface/vote.interface';
 import { CandidateRepository } from './candidate.repository';
 import { ElectionRepository } from './election.repository';
 import { VoterRepository } from './voter.repository';

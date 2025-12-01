@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import { ElectionController } from '@/controller/election.controller';
-import { AuthMiddleware } from '@/middleware/auth.middleware';
+import { ElectionController } from '../../controller/election.controller';
+import { AuthMiddleware } from '../../middleware/auth.middleware';
 
 export const electionRouter = Router();
 const electionController = new ElectionController();

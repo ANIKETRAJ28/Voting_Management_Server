@@ -2,7 +2,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 
-import { corsOptions } from '@/util/cors.util';
+import { corsOptions } from './util/cors.util';
 
 const app = express();
 

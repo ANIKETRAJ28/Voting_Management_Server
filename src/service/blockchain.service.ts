@@ -1,7 +1,7 @@
-import { getInstance, IBlockchainClient } from '@/config/blockchain.config';
-import { ICandidateChain, IVoterChain, IVotingManager } from '@/interface/blockchain.interface';
-import { ICandidateRequest } from '@/interface/candidate.interface';
-import { IElectionRequest } from '@/interface/election.interface';
+import { getInstance, IBlockchainClient } from '../config/blockchain.config';
+import { ICandidateChain, IVoterChain, IVotingManager } from '../interface/blockchain.interface';
+import { ICandidateRequest } from '../interface/candidate.interface';
+import { IElectionRequest } from '../interface/election.interface';
 import {
   ICandidatesAddedEvent,
   IElectionCreatedEvent,
@@ -10,12 +10,12 @@ import {
   IVotedEvent,
   IVotersAddedEvent,
   IVotingStartedEvent,
-} from '@/interface/handler.interface';
-import { IVoterRequest } from '@/interface/voter.interface';
-import { CandidateRepository } from '@/repository/candidate.repository';
-import { ElectionRepository } from '@/repository/election.repository';
-import { VoteRepository } from '@/repository/vote.repository';
-import { VoterRepository } from '@/repository/voter.repository';
+} from '../interface/handler.interface';
+import { IVoterRequest } from '../interface/voter.interface';
+import { CandidateRepository } from '../repository/candidate.repository';
+import { ElectionRepository } from '../repository/election.repository';
+import { VoteRepository } from '../repository/vote.repository';
+import { VoterRepository } from '../repository/voter.repository';
 
 export class IBlockchainService implements IVotingManager {
   private instance: IBlockchainClient;

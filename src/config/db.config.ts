@@ -1,13 +1,30 @@
 import { PrismaClient } from '@prisma/client';
 
-import { NODE_ENV } from '@/config/dotenv.config';
+import { NODE_ENV } from './dotenv.config';
 
-declare global {
-  var prisma: PrismaClient | undefined;
+class Prisma {
+  private prisma: PrismaClient;
+  private static instance: Prisma;
+
+  private constructor() {
+    this.prisma = new PrismaClient();
+  }
+
+  static getInstance(): Prisma {
+    if (NODE_ENV === 'production') {
+      return new Prisma();
+    }
+    if (!this.instance) {
+      this.instance = new Prisma();
+    }
+    return this.instance;
+  }
+
+  getClient(): PrismaClient {
+    return this.prisma;
+  }
 }
 
-export const prisma = globalThis.prisma || new PrismaClient();
+const db = Prisma.getInstance();
 
-if (NODE_ENV !== 'production') globalThis.prisma = prisma;
-
-export default prisma;
+export const prisma = db.getClient();
