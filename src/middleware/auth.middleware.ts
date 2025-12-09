@@ -8,6 +8,24 @@ import { refreshCookieOption } from '../util/cookie.util';
 import { generateAccessToken } from '../util/token.util';
 
 export class AuthMiddleware {
+  getUser(req: Request, res: Response): void {
+    try {
+      const accessToken = req.headers['access_token'];
+      if (accessToken === undefined || typeof accessToken !== 'string') {
+        throw new ApiError(401, 'Access token not present');
+      }
+      const decodedToken = jwt.decode(accessToken);
+      if (!decodedToken || typeof decodedToken === 'string' || decodedToken.exp === undefined)
+        throw new ApiError(401, 'Token not found');
+      if (decodedToken.exp * 1000 < Date.now()) {
+        throw new ApiError(401, 'Token expired');
+      }
+      apiHandler(res, 200, 'User fetched successfully', decodedToken);
+    } catch (error) {
+      errorHandler(error, res);
+    }
+  }
+
   verifyAccessToken(req: Request, res: Response, next: NextFunction): void {
     try {
       const accessToken = req.headers['access_token'];
@@ -20,9 +38,8 @@ export class AuthMiddleware {
       if (decodedToken.exp * 1000 < Date.now()) {
         throw new ApiError(401, 'NO_ACCESS_EXPIRED');
       }
-      const tokenData = decodedToken as IUserResponse;
-      req.user_id = tokenData.id;
-      req.user_address = tokenData.address.toLowerCase();
+      req.user_id = decodedToken.id;
+      req.user_address = decodedToken.address;
       next();
     } catch (error) {
       errorHandler(error, res);
@@ -44,7 +61,7 @@ export class AuthMiddleware {
         throw new ApiError(401, 'Unauthorized');
       }
       const tokenData = decodedToken as IUserResponse;
-      const accessToken = generateAccessToken(tokenData);
+      const accessToken = generateAccessToken({ id: tokenData.id, address: tokenData.address });
       apiHandler(res, 201, 'New token created successfully', accessToken);
     } catch (error) {
       errorHandler(error, res);

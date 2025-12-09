@@ -1,21 +1,23 @@
+import { ICandidateRequest } from './candidate.interface';
+import { IElectionRequest } from './election.interface';
 import {
-  ICandidatesAddedEvent,
-  IElectionCreatedEvent,
-  IFinalizedEvent,
-  IStageChangedEvent,
-  IVotedEvent,
-  IVotersAddedEvent,
-  IVotingStartedEvent,
-} from './handler.interface';
+  IonCandidatesAdded,
+  IonElectionCreated,
+  IonFinalize,
+  IonStageChanged,
+  IonVoted,
+  IonVotersAdded,
+  IonVotingStarted,
+} from './ws.interface';
 
 export interface IVotingManager {
-  onElectionCreated(data: IElectionCreatedEvent): Promise<void> | void;
-  onCandidatesAdded(data: ICandidatesAddedEvent): Promise<void> | void;
-  onVotersAdded(data: IVotersAddedEvent): Promise<void> | void;
-  onStageChanged(data: IStageChangedEvent): Promise<void> | void;
-  onVotingStarted(data: IVotingStartedEvent): Promise<void> | void;
-  onVoted(data: IVotedEvent): Promise<void> | void;
-  onFinalized(data: IFinalizedEvent): Promise<void> | void;
+  onElectionCreated(data: IElectionRequest): Promise<IonElectionCreated>;
+  onCandidatesAdded(election_id: bigint, data: ICandidateRequest[]): Promise<IonCandidatesAdded>;
+  onVotersAdded(id: bigint, voters: string[]): Promise<IonVotersAdded>;
+  onStageChanged(id: bigint, host_address: string, newStage: number): Promise<IonStageChanged[]>;
+  onVotingStarted(id: bigint, host_address: string, deadline: bigint): Promise<IonVotingStarted[]>;
+  onVoted(id: bigint, voter_address: string, candidature_address: string): Promise<IonVoted>;
+  onFinalized(id: bigint, host_address: string, payout: bigint): Promise<IonFinalize>;
 }
 
 export interface ICandidateChain {

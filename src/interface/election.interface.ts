@@ -1,6 +1,9 @@
 import { ICandidateResponse } from './candidate.interface';
+import { IVoter } from './voter.interface';
 
 export type IStage = 'Created' | 'RegisterCandidates' | 'RegisterVoters' | 'Voting' | 'Finalized';
+
+export const IStageMapper: IStage[] = ['Created', 'RegisterCandidates', 'RegisterVoters', 'Voting', 'Finalized'];
 
 export interface IElectionRequest {
   id: bigint;
@@ -27,41 +30,13 @@ export interface IElectionResponseWithCandidate extends IElectionResponse {
 
 export interface IElectionResponseForHost extends IElectionResponse {
   deposit: bigint;
-  deadline: bigint | null;
   finalize_payout: bigint | null;
 }
 
 export interface IElectionResponseWithCandidateForHost extends IElectionResponseForHost {
   candidates: ICandidateResponse[];
+  voters: IVoter[];
 }
-
-// export interface IElectionChainResponse extends IElectionRequest {
-//   id: bigint;
-//   deposit: bigint;
-//   created_at: bigint;
-// }
-
-// export interface IElectionResponse extends IElectionRequest {
-//   id: bigint;
-//   stage: IStage;
-//   deadline: bigint | null;
-//   created_at: bigint;
-// }
-
-// export interface IElectionResponseWithCandidate extends IElectionResponse {
-//   candidates: ICandidateResponse[];
-// }
-
-// export interface IElectionResponseWithCandidateForHost extends IElectionResponseWithCandidate {
-//   deposit: bigint;
-//   finalize_payout: bigint | null;
-// }
-
-// export interface IElection extends IElectionResponse {
-//   deposit: bigint;
-//   finalize_payout: bigint | null;
-//   updated_at: Date;
-// }
 
 export interface IElectionNotFound {
   error: true;

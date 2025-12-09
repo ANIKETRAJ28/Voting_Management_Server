@@ -7,6 +7,7 @@ import {
   IElectionNotFound,
   IElectionRequest,
   IElectionResponse,
+  IElectionResponseForHost,
   IElectionResponseWithCandidate,
   IElectionResponseWithCandidateForHost,
   IStage,
@@ -30,7 +31,7 @@ export class ElectionRepository {
 
   async getElectionById(id: bigint): Promise<IElectionResponse> {
     const election: IElection | null = await this.client.election.findUnique({ where: { id: id } });
-    if (election === null) throw new ApiError(400, 'Election not found');
+    if (election === null) throw new ApiError(404, 'Election not found');
     return {
       id: election.id,
       title: election.title,
@@ -99,8 +100,11 @@ export class ElectionRepository {
 
   async getElectionsAsHost(id: string): Promise<(IElectionResponse | IElectionNotFound)[]> {
     const user: IUser | null = await this.client.user.findUnique({ where: { id: id } });
-    if (user === null) throw new ApiError(400, 'User not found');
-    const hostedElections: IElection[] = await this.client.election.findMany({ where: { host_address: user.address } });
+    if (user === null) throw new ApiError(404, 'User not found');
+    const hostedElections: IElection[] = await this.client.election.findMany({
+      where: { host_address: user.address },
+      orderBy: { id: 'desc' },
+    });
     const elections: IElectionResponse[] = hostedElections.map(
       (hostedElection: IElection): IElectionResponse => ({
         id: hostedElection.id,
@@ -114,7 +118,25 @@ export class ElectionRepository {
     return elections;
   }
 
-  async getElectionDetail(
+  async getActiveElectionsForUser(user_id: string): Promise<IElectionResponse[]> {
+    const hostedElections = await this.getElectionsAsHost(user_id);
+    const candidatureElections = await this.getElectionsAsCandidature(user_id);
+    const voterElections = await this.getElectionsAsVoter(user_id);
+    function filterActiveElections(elections: (IElectionResponse | IElectionNotFound)[]): IElectionResponse[] {
+      return elections.filter(
+        (election): election is IElectionResponse => 'stage' in election && election.stage === 'Created',
+      );
+    }
+    const activeElections = [
+      ...filterActiveElections(hostedElections),
+      ...filterActiveElections(candidatureElections),
+      ...filterActiveElections(voterElections),
+    ];
+    activeElections.sort((a, b) => (a.id > b.id ? -1 : a.id < b.id ? 1 : 0));
+    return activeElections;
+  }
+
+  async getElectionDetailById(
     id: bigint,
     user_address: string,
   ): Promise<IElectionResponseWithCandidate | IElectionResponseWithCandidateForHost> {
@@ -130,10 +152,10 @@ export class ElectionRepository {
         },
       })) === null
     )
-      throw new ApiError(401, 'Election not found');
+      throw new ApiError(404, 'Election not found');
     const election: (IElectionResponseWithCandidateForHost & { updated_at: Date }) | null =
       await this.client.election.findUnique({ where: { id: id }, include: { candidates: true, voters: true } });
-    if (election === null) throw new ApiError(401, 'Election not found');
+    if (election === null) throw new ApiError(404, 'Election not found');
     const detailedElection: IElectionResponseWithCandidateForHost = {
       id: election.id,
       title: election.title,
@@ -142,10 +164,11 @@ export class ElectionRepository {
       deadline: election.deadline,
       created_at: election.created_at,
       candidates: election.candidates,
+      voters: election.voters,
       deposit: election.deposit,
       finalize_payout: election.finalize_payout,
     };
-    if (user_address === detailedElection.host_address.toLowerCase()) return detailedElection;
+    if (user_address === detailedElection.host_address) return detailedElection;
     return {
       id: election.id,
       title: election.title,
@@ -157,37 +180,46 @@ export class ElectionRepository {
     };
   }
 
-  async createElection(data: IElectionRequest): Promise<IElectionResponse> {
-    const election: IElection = await this.client.election.create({ data: data });
-    return election;
+  async createElection(data: IElectionRequest): Promise<IElectionResponseForHost> {
+    const election = await this.client.election.create({ data: data });
+    return {
+      id: election.id,
+      title: election.title,
+      stage: election.stage,
+      host_address: election.host_address,
+      created_at: election.created_at,
+      deadline: election.deadline,
+      deposit: election.deposit,
+      finalize_payout: election.finalize_payout,
+    };
   }
 
   async updateElectionStage(election_id: bigint, user_address: string, stage: IStage): Promise<IElectionResponse> {
     let election: IElection | null = await this.client.election.findUnique({ where: { id: election_id } });
     if (election === null) throw new ApiError(404, 'Election not found');
-    if (election.host_address.toLowerCase() !== user_address) throw new ApiError(401, 'Unauthorized for this action');
+    if (election.host_address !== user_address) throw new ApiError(403, 'Unauthorized for this action');
     switch (stage) {
       case 'Created': {
-        throw new ApiError(400, 'Cannot perform this action');
+        throw new ApiError(403, 'Cannot perform this action');
       }
       case 'RegisterCandidates': {
-        if (election.stage !== 'Created') throw new ApiError(400, 'Cannot perform this action');
+        if (election.stage !== 'Created') throw new ApiError(403, 'Cannot perform this action');
         break;
       }
       case 'RegisterVoters': {
-        if (election.stage !== 'RegisterCandidates') throw new ApiError(400, 'Cannot perform this action');
+        if (election.stage !== 'RegisterCandidates') throw new ApiError(403, 'Cannot perform this action');
         break;
       }
       case 'Voting': {
-        if (election.stage !== 'RegisterVoters') throw new ApiError(400, 'Cannot perform this action');
+        if (election.stage !== 'RegisterVoters') throw new ApiError(403, 'Cannot perform this action');
         break;
       }
       case 'Finalized': {
-        if (election.stage !== 'Voting') throw new ApiError(400, 'Cannot perform this action');
+        if (election.stage !== 'Voting') throw new ApiError(403, 'Cannot perform this action');
         break;
       }
       default: {
-        throw new ApiError(400, 'Cannot perform this action');
+        throw new ApiError(403, 'Cannot perform this action');
       }
     }
     election = await this.client.election.update({ where: { id: election.id }, data: { stage: stage } });
@@ -208,15 +240,31 @@ export class ElectionRepository {
   ): Promise<IElectionResponse> {
     let election: IElection | null = await this.client.election.findUnique({ where: { id: election_id } });
     if (election === null) throw new ApiError(404, 'Cannot find election');
-    if (election.host_address.toLowerCase() !== user_address) throw new ApiError(401, 'Unauthorized for this action');
+    if (election.host_address !== user_address) throw new ApiError(403, 'Unauthorized for this action');
     election = await this.client.election.update({ where: { id: election_id }, data: { deadline: deadline } });
     return election;
   }
 
-  async updateElectionPayout(election_id: bigint, payout: bigint): Promise<IElectionResponse> {
-    let election: IElection | null = await this.client.election.findUnique({ where: { id: election_id } });
-    if (election === null) throw new ApiError(404, 'Election not found');
-    election = await this.client.election.update({ where: { id: election_id }, data: { finalize_payout: payout } });
-    return election;
+  async updateElectionPayout(
+    election_id: bigint,
+    host_address: string,
+    payout: bigint,
+  ): Promise<IElectionResponseForHost> {
+    const election: IElectionResponse = await this.getElectionById(election_id);
+    if (election.host_address !== host_address) throw new ApiError(403, 'Unauthorized for this action');
+    const electionForHost = await this.client.election.update({
+      where: { id: election_id },
+      data: { finalize_payout: payout },
+    });
+    return {
+      id: electionForHost.id,
+      title: electionForHost.title,
+      host_address: electionForHost.host_address,
+      stage: electionForHost.stage,
+      deadline: electionForHost.deadline,
+      deposit: electionForHost.deposit,
+      finalize_payout: electionForHost.finalize_payout,
+      created_at: electionForHost.created_at,
+    };
   }
 }

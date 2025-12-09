@@ -12,17 +12,52 @@ export class CandidateRepository {
     this.client = prisma;
   }
 
-  async getCandidateById(id: bigint): Promise<ICandidateResponse> {
+  async getCandidatesForElection(election_id: bigint): Promise<ICandidateResponse[]> {
+    const candidates: ICandidate[] = await this.client.candidate.findMany({ where: { election_id: election_id } });
+    return candidates.map((candidate: ICandidate) => ({
+      id: candidate.id,
+      name: candidate.name,
+      user_address: candidate.user_address,
+      election_id: candidate.election_id,
+      votes: candidate.votes,
+    }));
+  }
+
+  async getCandidatureByElectionIdAndUserAddress(
+    election_id: bigint,
+    user_address: string,
+  ): Promise<ICandidateResponse> {
+    const candidate: ICandidate | null = await this.client.candidate.findUnique({
+      where: { user_address_election_id: { election_id: election_id, user_address: user_address } },
+    });
+    if (candidate === null) throw new ApiError(404, 'Candidate not found');
+    return {
+      id: candidate.id,
+      name: candidate.name,
+      user_address: candidate.user_address,
+      election_id: candidate.election_id,
+      votes: candidate.votes,
+    };
+  }
+
+  async getCandidateById(id: number): Promise<ICandidateResponse> {
     const candidate: ICandidate | null = await this.client.candidate.findUnique({ where: { id: id } });
     if (candidate === null) throw new ApiError(404, 'Candidate not found');
-    return candidate;
+    return {
+      id: candidate.id,
+      name: candidate.name,
+      user_address: candidate.user_address,
+      election_id: candidate.election_id,
+      votes: candidate.votes,
+    };
   }
 
   async getCandidatureForUserId(id: string): Promise<ICandidateResponse[]> {
     const user: IUser | null = await this.client.user.findUnique({ where: { id: id } });
-    if (user === null) throw new ApiError(401, 'User not found');
+    if (user === null) throw new ApiError(404, 'User not found');
     const candidatureList: ICandidate[] = await this.client.candidate.findMany({
       where: { user_address: user.address },
+      orderBy: { id: 'desc' },
     });
     return candidatureList.map((candidate) => ({
       id: candidate.id,
@@ -35,7 +70,7 @@ export class CandidateRepository {
 
   async createCandidate(data: ICandidateRequest): Promise<ICandidateResponse> {
     const candidate: ICandidate = await this.client.candidate.create({
-      data: { id: data.id, name: data.name, user_address: data.user_address, election_id: data.election_id },
+      data: { name: data.name, user_address: data.user_address, election_id: data.election_id },
     });
     return {
       id: candidate.id,
@@ -55,5 +90,17 @@ export class CandidateRepository {
       election_id: candidate.election_id,
       votes: candidate.votes,
     }));
+  }
+
+  async updatevotesByCandidateId(id: number): Promise<ICandidateResponse> {
+    let candidate = await this.getCandidateById(id);
+    candidate = await this.client.candidate.update({ where: { id: id }, data: { votes: candidate.votes + BigInt(1) } });
+    return {
+      id: candidate.id,
+      name: candidate.name,
+      user_address: candidate.user_address,
+      election_id: candidate.election_id,
+      votes: candidate.votes,
+    };
   }
 }

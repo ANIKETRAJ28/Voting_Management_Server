@@ -14,7 +14,7 @@ export class AuthRepository {
 
   async getUserByAddress(address: string): Promise<IUserResponse> {
     const user: IUser | null = await this.client.user.findUnique({ where: { address: address } });
-    if (user === null) throw new ApiError(400, 'User not found with given address');
+    if (user === null) throw new ApiError(404, 'User not found with given address');
     return user;
   }
 

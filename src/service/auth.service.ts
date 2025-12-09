@@ -17,7 +17,7 @@ export class AuthService {
 
   async verify(address: string, signature: string, nonce: string): Promise<IUserResponse> {
     const isCorrect = verifySignature(address, signature, nonce);
-    if (isCorrect == false) throw new ApiError(400, 'Signature mismatched');
+    if (isCorrect == false) throw new ApiError(403, 'Signature mismatched');
     const userData: IUserResponse = await this.authRepository.verify(address, nonce);
     return userData;
   }

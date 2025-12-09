@@ -1,9 +1,12 @@
 import { ethers } from 'ethers';
 import fs from 'fs';
+import path from 'path';
 
-import { CONTRACT_URL, PRIVATE_KEY, RPC_URL, WS_URL } from './dotenv.config';
+import { CONTRACT_ADDRESS, PRIVATE_KEY, RPC_URL, WS_URL } from './dotenv.config';
 
-const abi = JSON.parse(fs.readFileSync('./votingManager_abi.config.json', 'utf-8'));
+const abiPath = path.join(process.cwd(), 'json', 'votingManager_abi.config.json');
+
+const abi = JSON.parse(fs.readFileSync(abiPath, 'utf-8'));
 
 class BlockchainClient {
   private provider: ethers.JsonRpcProvider;
@@ -16,7 +19,7 @@ class BlockchainClient {
     this.provider = new ethers.JsonRpcProvider(RPC_URL);
     this.wsProvider = new ethers.WebSocketProvider(WS_URL);
     this.wallet = new ethers.Wallet(PRIVATE_KEY, this.provider);
-    this.contract = new ethers.Contract(CONTRACT_URL, abi, this.wallet);
+    this.contract = new ethers.Contract(CONTRACT_ADDRESS, abi, this.wallet);
   }
 
   static getInstance(): BlockchainClient {

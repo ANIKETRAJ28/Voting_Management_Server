@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
 
-import { IElectionNotFound, IElectionResponse } from '../interface/election.interface';
+import {
+  IElectionNotFound,
+  IElectionResponse,
+  IElectionResponseWithCandidate,
+  IElectionResponseWithCandidateForHost,
+} from '../interface/election.interface';
 import { ElectionService } from '../service/election.service';
 import { ApiError } from '../util/api.util';
 import { apiHandler, errorHandler } from '../util/apiHandler.util';
@@ -10,6 +15,19 @@ export class ElectionController {
 
   constructor() {
     this.electionService = new ElectionService();
+  }
+
+  async getElectionDetailById(req: Request, res: Response): Promise<void> {
+    try {
+      const { user_address } = req;
+      const { id } = req.params;
+      if (user_address === undefined) throw new ApiError(401, 'Unauthorized request');
+      const election: IElectionResponseWithCandidate | IElectionResponseWithCandidateForHost =
+        await this.electionService.getElectionDetailById(BigInt(id), user_address);
+      apiHandler(res, 200, 'Election detail fetched successfully', election);
+    } catch (error) {
+      errorHandler(error, res);
+    }
   }
 
   async getElectionAsCandidature(req: Request, res: Response): Promise<void> {
@@ -43,6 +61,17 @@ export class ElectionController {
       const elections: (IElectionResponse | IElectionNotFound)[] =
         await this.electionService.getElectionsAsHost(user_id);
       apiHandler(res, 200, 'All host elections fetched', elections);
+    } catch (error) {
+      errorHandler(error, res);
+    }
+  }
+
+  async getActiveElectionsForUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { user_id } = req;
+      if (user_id === undefined) throw new ApiError(401, 'Unauthorized request');
+      const elections: IElectionResponse[] = await this.electionService.getActiveElectionsForUser(user_id);
+      apiHandler(res, 200, 'All active elections fetched', elections);
     } catch (error) {
       errorHandler(error, res);
     }

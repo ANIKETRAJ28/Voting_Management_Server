@@ -1,13 +1,10 @@
-export interface IVote {
-  id: number;
-  election_id: bigint;
-  voter_id: number;
-  candidate_id: bigint;
-  timestamp: Date;
-}
-
 export interface IVoteRequest {
   election_id: bigint;
   voter_id: number;
-  candidate_id: bigint;
+  candidate_id: number;
+}
+
+export interface IVote extends IVoteRequest {
+  id: number;
+  timestamp: Date;
 }

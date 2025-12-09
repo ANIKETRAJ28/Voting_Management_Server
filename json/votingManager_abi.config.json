@@ -253,7 +253,7 @@
         "internalType": "uint256"
       },
       {
-        "name": "voter",
+        "name": "voterAddress",
         "type": "address",
         "indexed": true,
         "internalType": "address"
@@ -263,12 +263,6 @@
         "type": "address",
         "indexed": true,
         "internalType": "address"
-      },
-      {
-        "name": "candidateIndex",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
       }
     ],
     "anonymous": false

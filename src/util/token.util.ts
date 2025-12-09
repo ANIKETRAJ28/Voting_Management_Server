@@ -4,7 +4,7 @@ import { JWT_SECRET_KEY } from '../config/dotenv.config';
 
 export function generateAccessToken(data: { id: string; address: string }): string {
   const accessToken = jwt.sign(data, JWT_SECRET_KEY as string, {
-    expiresIn: '15m',
+    expiresIn: '15min',
   });
   return accessToken;
 }
