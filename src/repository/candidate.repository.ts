@@ -82,6 +82,7 @@ export class CandidateRepository {
   }
 
   async createBulkCandidate(data: ICandidateRequest[]): Promise<ICandidateResponse[]> {
+    console.log('candidates data...', data);
     const candidates: ICandidate[] = await this.client.candidate.createManyAndReturn({ data: data });
     return candidates.map((candidate: ICandidate) => ({
       id: candidate.id,

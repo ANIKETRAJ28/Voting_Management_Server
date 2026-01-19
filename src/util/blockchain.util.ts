@@ -42,6 +42,7 @@ export function initVotingManagerWS(handlers: IVotingManager) {
 
   wsContract.on('CandidatesAdded', async (id: bigint) => {
     const candidates: ICandidateChain[] = await contract.getCandidates(id);
+    console.log('candidates...', candidates);
     const candidatesData: ICandidateRequest[] = candidates.map((candidate) => ({
       name: candidate.name,
       user_address: candidate.candidateAddress,
